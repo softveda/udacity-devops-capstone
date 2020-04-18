@@ -1,0 +1,13 @@
+{
+  "name": "simple_nodejs_web_app",
+  "version": "1.0.0",
+  "description": "A simple nodejs app on Docker",
+  "author": "Pratik Khasnabis <pratik.khasnabis@poutlook.com>",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "dependencies": {
+    "express": "^4.16.1"
+  }
+}
