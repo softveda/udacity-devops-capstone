@@ -1,16 +1,30 @@
 'use strict';
 
 const express = require('express');
+const morgan = require('morgan')
 
 // Constants
 const PORT = 80;
-const HOST = '0.0.0.0';
+const path = __dirname + '/views/';
 
 // App
 const app = express();
-app.get('/', (req, res) => {
-  res.send('Hello World');
+const router = express.Router();
+
+router.use(morgan('common'));
+
+router.use(function (req,res,next) {
+  next();
 });
 
-app.listen(PORT, HOST);
-console.log(`Running on http://${HOST}:${PORT}`);
+router.get('/', function(req,res){
+  res.sendFile(path + 'index.html');
+});
+
+
+//app.use(express.static(path));
+app.use('/', router);
+
+app.listen(PORT, function() {
+  console.log(`Simple node web app listening on port ${PORT}`);
+});

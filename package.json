@@ -3,11 +3,13 @@
   "version": "1.0.0",
   "description": "A simple nodejs app on Docker",
   "author": "Pratik Khasnabis <pratik.khasnabis@poutlook.com>",
+  "license": "MIT",
   "main": "app.js",
   "scripts": {
     "start": "node app.js"
   },
   "dependencies": {
-    "express": "^4.16.1"
+    "express": "^4.16.1",
+    "morgan":"^1.10.0"
   }
 }
