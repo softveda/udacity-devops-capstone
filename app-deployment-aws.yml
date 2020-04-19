@@ -7,9 +7,29 @@ spec:
   selector:
     app: simple-web-app
   ports:
-    - port: 8080
+    - port: 80
       targetPort: 80
   type: LoadBalancer
+
+---
+
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: simple-web-app
+  annotations:
+    kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/scheme: internet-facing
+  labels:
+    app: simple-web-app
+spec:
+  rules:
+    - http:
+        paths:
+          - path: /*
+            backend:
+              serviceName: simple-web-app
+              servicePort: 80
 
 ---
 
