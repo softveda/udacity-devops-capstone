@@ -28,7 +28,7 @@ docker build -t simple_node_app .
 ```bash
 curl -s http://localhost:8080
 ```
-This should show the contents of *index.html* on the console
+This should show the contents of *index.html* on the console.  
 Alternately open your web browser and browse to the URL http://localhost:8080
 
 
