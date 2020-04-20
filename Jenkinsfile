@@ -25,7 +25,7 @@ pipeline {
      stage('Push Docker image to repo'){
       steps{
         sh 'docker tag simple_node_app softveda/simple_node_app:latest'
-        withDockerRegistry([ credentialsId: "docker-hub-credentials"]) {
+        withDockerRegistry([ credentialsId: "docker-hub-credentials", url: ""]) {
             // following commands will be executed within logged docker registry
             sh 'docker push softveda/simple_node_app:latest'
         }
