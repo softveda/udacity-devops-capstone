@@ -7,9 +7,10 @@ pipeline {
         sh 'eslint *.js'
       }
     }
-    stage('Docker Image'){
+    stage('Build Docker Image'){
       steps{
-        sh 'echo building Docker image'
+        sh 'docker build -t simple_node_app .'
+        sh 'docker image ls -q simple_node_app:latest'
       }
     }
   }
