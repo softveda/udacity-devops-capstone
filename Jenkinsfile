@@ -20,6 +20,7 @@ pipeline {
         sh 'curl -s http://localhost:80'
         sh 'docker logs simple_node_app'
         sh 'docker stop simple_node_app'
+        sh 'docker rm simple_node_app'
       }
     }
      stage('Push Docker image to repo'){
@@ -29,10 +30,10 @@ pipeline {
             // following commands will be executed within logged docker registry
             sh 'docker push softveda/simple_node_app:latest'
         }
-        sh 'docker tag simple_node_app 915323986442.dkr.ecr.us-west-2.amazonaws.com/simple_node_app:${env.BUILD_NUMBER}'
+        sh 'docker tag simple_node_app 915323986442.dkr.ecr.us-west-2.amazonaws.com/simple_node_app:$BUILD_NUMBER'
         withDockerRegistry([ credentialsId: "docker-ecr-credentials", url: "915323986442.dkr.ecr.us-west-2.amazonaws.com/simple_node_app"]) {
             // following commands will be executed within logged docker registry
-            sh 'docker push 915323986442.dkr.ecr.us-west-2.amazonaws.com/simple_node_app:${BUILD_NUMBER}'
+            sh 'docker push 915323986442.dkr.ecr.us-west-2.amazonaws.com/simple_node_app:$BUILD_NUMBER'
         }
         // sh 'docker push softveda/simple_node_app:latest'
         sh 'docker image rm -f simple_node_app:latest'
