@@ -4,8 +4,6 @@ pipeline {
     stage('Linting'){
       steps{
         sh 'tidy -q -e views/*.html'
-      }
-      steps{
         sh 'eslint *.js'
       }
     }
