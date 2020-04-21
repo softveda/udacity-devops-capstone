@@ -40,11 +40,8 @@ pipeline {
 
     stage('Push image to ECR') {
       steps {
-        withDockerRegistry(credentialsId: 'docker-ecr-credentials', url: 'https://915323986442.dkr.ecr.us-west-2.amazonaws.com/simple_node_app') {
-          sh 'docker tag simple_node_app 915323986442.dkr.ecr.us-west-2.amazonaws.com/simple_node_app:$BUILD_NUMBER'
-          sh 'docker push 915323986442.dkr.ecr.us-west-2.amazonaws.com/simple_node_app:$BUILD_NUMBER'
-        }
-
+        sh 'docker tag simple_node_app 915323986442.dkr.ecr.us-west-2.amazonaws.com/simple_node_app:$BUILD_NUMBER'
+        sh 'docker push 915323986442.dkr.ecr.us-west-2.amazonaws.com/simple_node_app:$BUILD_NUMBER'
         sh 'docker image rm -f simple_node_app:latest'
       }
     }
