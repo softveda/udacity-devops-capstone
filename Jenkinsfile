@@ -93,7 +93,7 @@ pipeline {
         echo "EKS Status: ${EKS_STATUS}"
         echo "Deployment Version: ${params.DEP_VERSION}"
         SVC = sh (
-          script: "kubectl get services | grep simple-web-app | awk '{print $4}'",
+          script: "kubectl get services | grep simple-web-app | awk '{print \$4}'",
           returnStdout: true
         ).trim()
       }
