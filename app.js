@@ -26,5 +26,7 @@ router.get("/", function(req,res){
 app.use("/", router);
 
 app.listen(PORT, function() {
-  console.log(`Simple node web app listening on port ${PORT}`);
+  var startTime = new Date().toUTCString();
+  var host = process.env.HOSTNAME;
+  console.log(`Simple node web app Started at: ${startTime}, Running on host: ${host}, Listening on port: ${PORT}`);
 });
