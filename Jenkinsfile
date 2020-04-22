@@ -56,8 +56,10 @@ pipeline {
 
     stage('Create ECR repository') {
       steps {
-        sh 'chmod +x ./create-stack.sh'
-        sh './create-stack.sh simple-node-app us-west-2 cfn-ecr.yml'
+        //sh 'chmod +x ./create-stack.sh'
+        //sh './create-stack.sh simple-node-app us-west-2 cfn-ecr.yml'
+        sh 'aws cloudformation deploy --stack-name simple-node-app-repo --region us-west-2 --template-file cfn-ecr.yml --parameter-overrides RepositoryName=
+simple_node_app'
       }
     }
 

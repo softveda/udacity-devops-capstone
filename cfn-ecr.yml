@@ -3,9 +3,15 @@ Description: >
     Udacity Cloud Devops Engineer Nanodegree program.
     Deploy a Elastic Container Registry repository
 
+Parameters:
+
+    RepositoryName:
+        Description: Name of the ECR Repository
+        Type: String
+
 Resources:
 
     ECR: 
         Type: AWS::ECR::Repository
         Properties:
-            RepositoryName: simple_node_app
+            RepositoryName: !Ref RepositoryName
