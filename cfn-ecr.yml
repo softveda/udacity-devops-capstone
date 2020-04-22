@@ -8,4 +8,4 @@ Resources:
     ECR: 
         Type: AWS::ECR::Repository
         Properties:
-            RepositoryName: simple-node-app-repo
+            RepositoryName: simple_node_app
