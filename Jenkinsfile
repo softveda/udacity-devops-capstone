@@ -56,8 +56,6 @@ pipeline {
 
     stage('Create ECR repository') {
       steps {
-        //sh 'chmod +x ./create-stack.sh'
-        //sh './create-stack.sh simple-node-app us-west-2 cfn-ecr.yml'
         sh 'aws cloudformation deploy --stack-name simple-node-app-repo --region us-west-2 --template-file cfn-ecr.yml --parameter-overrides RepositoryName=simple_node_app'
       }
     }
@@ -71,7 +69,9 @@ pipeline {
       }
       post {
         always {
+          sh 'docker image rm -f 915323986442.dkr.ecr.us-west-2.amazonaws.com/simple_node_app:$BUILD_NUMBER'
           sh 'docker image rm -f 915323986442.dkr.ecr.us-west-2.amazonaws.com/simple_node_app:latest'
+          sh 'docker image rm -f simple_node_app:latest'
         }
       }
     }
@@ -80,17 +80,24 @@ pipeline {
       environment {
         EKS_STATUS = sh (script:'eksctl get cluster --name=basic-cluster --region=us-west-2', returnStatus: true)
       }
+      when {
+        expression {environment name: 'EKS_STATUS', value: '0'}
+      }
       steps {
-        echo "EKS cluster status: $EKS_STATUS"
+        echo "Running EKS create cluster ..."
       }
     }
 
     stage('Deploy to EKS') {
       steps {
+        echo "EKS Status: ${EKS_STATUS}"
         echo "Deployment Version: ${params.DEP_VERSION}"
-        sh 'kubectl get svc'        
+        SVC = sh (
+          script: "kubectl get services | grep simple-web-app | awk '{print $4}'",
+          returnStdout: true
+        ).trim()
       }
+      echo "Kubernetes service: ${SVC}"
     }
-
   }
 }
