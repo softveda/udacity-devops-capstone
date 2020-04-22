@@ -57,21 +57,21 @@ pipeline {
     stage('Create ECR repository') {
       steps {
         sh 'chmod +x ./create-stack.sh'
-        sh './create-stack.sh simple-node-app-repo us-west-2 cfn-ecr.yml'
+        sh './create-stack.sh simple_node_app_repo us-west-2 cfn-ecr.yml'
       }
     }
 
     stage('Push image to ECR') {
       steps {
-        sh 'docker tag simple_node_app 915323986442.dkr.ecr.us-west-2.amazonaws.com/simple_node_app:$BUILD_NUMBER'
-        sh 'docker push 915323986442.dkr.ecr.us-west-2.amazonaws.com/simple_node_app:$BUILD_NUMBER'
-        sh 'docker tag 915323986442.dkr.ecr.us-west-2.amazonaws.com/simple_node_app:latest'
-        sh 'docker push 915323986442.dkr.ecr.us-west-2.amazonaws.com/simple_node_app:latest'        
+        sh 'docker tag simple_node_app 915323986442.dkr.ecr.us-west-2.amazonaws.com/simple_node_app_repo:$BUILD_NUMBER'
+        sh 'docker push 915323986442.dkr.ecr.us-west-2.amazonaws.com/simple_node_app_repo:$BUILD_NUMBER'
+        sh 'docker tag 915323986442.dkr.ecr.us-west-2.amazonaws.com/simple_node_app_repo:latest'
+        sh 'docker push 915323986442.dkr.ecr.us-west-2.amazonaws.com/simple_node_app_repo:latest'        
       }
       post {
         always {
-          sh 'docker image rm -f 915323986442.dkr.ecr.us-west-2.amazonaws.com/simple_node_app:$BUILD_NUMBER'
-          sh 'docker image rm -f 915323986442.dkr.ecr.us-west-2.amazonaws.com/simple_node_app:latest'
+          sh 'docker image rm -f 915323986442.dkr.ecr.us-west-2.amazonaws.com/simple_node_app_repo:$BUILD_NUMBER'
+          sh 'docker image rm -f 915323986442.dkr.ecr.us-west-2.amazonaws.com/simple_node_app_repo:latest'
         }
       }
     }
@@ -79,7 +79,7 @@ pipeline {
     stage('Check EKS') {
       steps {
         EKS_STATUS = sh (
-          'eksctl get cluster --name=basic-cluster --region=us-west-2'
+          script:'eksctl get cluster --name=basic-cluster --region=us-west-2',
           returnStatus: true
         )
         sh 'echo EKS cluster status: $EKS_STATUS'
