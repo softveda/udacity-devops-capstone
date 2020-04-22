@@ -92,12 +92,15 @@ pipeline {
       steps {
         echo "EKS Status: ${EKS_STATUS}"
         echo "Deployment Version: ${params.DEP_VERSION}"
-        SVC = sh (
-          script: "kubectl get services | grep simple-web-app | awk '{print \$4}'",
-          returnStdout: true
-        ).trim()
+        script {
+          K8S_SVC = sh (
+            script: "kubectl get services | grep simple-web-app | awk '{print \$4}'",
+            returnStdout: true
+          ).trim()
+        }        
+        echo "Kubernetes service: ${K8S_SVC}"
       }
-      echo "Kubernetes service: ${SVC}"
+     
     }
   }
 }
