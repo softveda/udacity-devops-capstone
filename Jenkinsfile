@@ -2,11 +2,11 @@ pipeline {
   agent any
 
   environment {
-
+    APP_NAME = "simple_node_app"
   }
 
   parameters {
-
+    choice(name: 'DEP_VERSION', choices: ['Blue', 'Green'], description: 'Deployment Version')
   }
   
   stages {
@@ -76,14 +76,20 @@ pipeline {
       }
     }
 
-    stage('Check EKS') {
+    stage('Provision EKS cluster') {
       steps {
         EKS_STATUS = sh (
           script:'eksctl get cluster --name=basic-cluster --region=us-west-2',
           returnStatus: true
         )
         sh 'echo EKS cluster status: $EKS_STATUS'
-        sh 'kubectl get svc'
+      }
+    }
+
+    stage('Deploy to EKS') {
+      steps {
+        echo "Deployment Version: ${params.DEP_VERSION}"
+        sh 'kubectl get svc'        
       }
     }
 
