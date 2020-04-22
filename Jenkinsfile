@@ -90,7 +90,6 @@ pipeline {
 
     stage('Deploy to EKS') {
       steps {
-        echo "EKS Status: ${EKS_STATUS}"
         echo "Deployment Version: ${params.DEP_VERSION}"
         script {
           K8S_SVC = sh (
