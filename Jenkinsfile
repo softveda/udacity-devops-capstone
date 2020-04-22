@@ -91,6 +91,9 @@ pipeline {
     stage('Deploy to EKS') {
       steps {
         echo "Deployment Version: ${params.DEP_VERSION}"
+
+        sh 'kubectl apply -f app-deployment-aws.yml && kubectl rollout status deployment.apps/simple-web-app --timeout=2m --watch=true'
+
         script {
           K8S_SVC = sh (
             script: "kubectl get services | grep simple-web-app | awk '{print \$4}'",
@@ -98,6 +101,7 @@ pipeline {
           ).trim()
         }        
         echo "Kubernetes service: ${K8S_SVC}"
+        sh 'curl -s ${K8S_SVC} | grep Version'
       }
      
     }
