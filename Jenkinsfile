@@ -1,10 +1,21 @@
 pipeline {
   agent any
+
+  environment {
+
+  }
+
+  parameters {
+
+  }
+  
   stages {
+
     stage('Linting') {
       steps {
         sh 'tidy -q -e views/*.html'
         sh 'eslint *.js'
+        sh 'hadolint Dockerfile'
       }
     }
 
@@ -34,7 +45,19 @@ pipeline {
           sh 'docker push softveda/simple_node_app:$BUILD_NUMBER'
           sh 'docker push softveda/simple_node_app:latest'
         }
+      }
+      post {
+        always {
+          sh 'docker image rm -f softveda/simple_node_app:$BUILD_NUMBER'
+          sh 'docker image rm -f softveda/simple_node_app:latest'
+        }
+      }
+    }
 
+    stage('Create ECR repository') {
+      steps {
+        sh 'chmod +x ./create-stack.sh'
+        sh './create-stack.sh simple-node-app-repo us-west-2 cfn-ecr.yml'
       }
     }
 
@@ -42,13 +65,24 @@ pipeline {
       steps {
         sh 'docker tag simple_node_app 915323986442.dkr.ecr.us-west-2.amazonaws.com/simple_node_app:$BUILD_NUMBER'
         sh 'docker push 915323986442.dkr.ecr.us-west-2.amazonaws.com/simple_node_app:$BUILD_NUMBER'
-        sh 'docker image rm -f simple_node_app:latest'
+        sh 'docker tag 915323986442.dkr.ecr.us-west-2.amazonaws.com/simple_node_app:latest'
+        sh 'docker push 915323986442.dkr.ecr.us-west-2.amazonaws.com/simple_node_app:latest'        
+      }
+      post {
+        always {
+          sh 'docker image rm -f 915323986442.dkr.ecr.us-west-2.amazonaws.com/simple_node_app:$BUILD_NUMBER'
+          sh 'docker image rm -f 915323986442.dkr.ecr.us-west-2.amazonaws.com/simple_node_app:latest'
+        }
       }
     }
 
     stage('Check EKS') {
       steps {
-        sh 'eksctl get cluster --name=basic-cluster --region=us-west-2'
+        EKS_STATUS = sh (
+          'eksctl get cluster --name=basic-cluster --region=us-west-2'
+          returnStatus: true
+        )
+        sh 'echo EKS cluster status: $EKS_STATUS'
         sh 'kubectl get svc'
       }
     }

@@ -1,0 +1,11 @@
+Description: >
+    Pratik Khasnabis
+    Udacity Cloud Devops Engineer Nanodegree program.
+    Deploy a Elastic Container Registry repository
+
+Resources:
+
+    ECR: 
+        Type: AWS::ECR::Repository
+        Properties:
+            RepositoryName: simple-node-app-repo
