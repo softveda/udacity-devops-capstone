@@ -77,12 +77,11 @@ pipeline {
     }
 
     stage('Provision EKS cluster') {
+      environment {
+        EKS_STATUS = sh (script:'eksctl get cluster --name=basic-cluster --region=us-west-2', returnStatus: true)
+      }
       steps {
-        EKS_STATUS = sh (
-          script:'eksctl get cluster --name=basic-cluster --region=us-west-2',
-          returnStatus: true
-        )
-        sh 'echo EKS cluster status: $EKS_STATUS'
+        echo "EKS cluster status: $EKS_STATUS"
       }
     }
 
