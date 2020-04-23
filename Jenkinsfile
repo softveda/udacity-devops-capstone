@@ -96,7 +96,7 @@ pipeline {
           ).trim()
         }        
         echo "Kubernetes service URL: ${K8S_SVC}"
-        sh 'curl -s http://$K8S_SVC | grep Version:'
+        sh "curl -s http://$K8S_SVC | grep Version:"
       }
      
     }
