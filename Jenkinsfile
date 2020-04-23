@@ -87,16 +87,16 @@ pipeline {
         echo "Deploying to EKS cluster ..."
 
         sh 'kubectl apply -f app-deployment-aws.yml'
-        sh 'kubectl rollout status deployment.apps/simple-web-app --timeout=5m --watch=true'
+        sh 'kubectl rollout status deployment.apps/simple-node-app --timeout=5m --watch=true'
 
         script {
           K8S_SVC = sh (
-            script: "kubectl get services | grep simple-web-app | awk '{print \$4}'",
+            script: "kubectl get services | grep simple-node-app | awk '{print \$4}'",
             returnStdout: true
           ).trim()
         }        
         echo "Kubernetes service URL: ${K8S_SVC}"
-        sh 'curl -s http://$K8S_SVC | grep Version'
+        sh 'curl -s http://$K8S_SVC | grep Version:'
       }
      
     }
