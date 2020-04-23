@@ -18,6 +18,8 @@ pipeline {
       }
       steps {
         echo "Creating EKS Cluster: ${params.EKS_CLUSTER}"
+        sh 'eksctl create cluster -f cluster.yml'
+        sh 'aws eks list-clusters --region=us-west-2 --output=text'
       }
     }
   }
