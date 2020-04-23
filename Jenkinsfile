@@ -97,9 +97,9 @@ pipeline {
             script: "kubectl get services | grep simple-node-app | awk '{print \$4}'",
             returnStdout: true
           ).trim()
-        }        
-        echo "Kubernetes service URL: ${K8S_SVC}"
-        sh "curl -m 5 -s http://$K8S_SVC"
+                
+          echo "Kubernetes service URL: ${K8S_SVC}"
+          sh "curl -m 5 -s http://$K8S_SVC"
         }
       }
     }
