@@ -96,9 +96,21 @@ pipeline {
           ).trim()
         }        
         echo "Kubernetes service URL: ${K8S_SVC}"
-        sh "curl -s http://$K8S_SVC | grep Version:"
+        script {
+          SVC_STATUS = sh(
+            script: "curl -s http://$K8S_SVC | grep Version:",
+            returnStatus: true
+          )
+          script {
+            echo "Service Status: ${SVC_STATUS}"
+            if(SVC_STATUS) {
+              echo "Service is Running"
+            } else {
+              echo "Service is NOT Running"
+            }
+          }
+        }
       }
-     
     }
   }
 }
