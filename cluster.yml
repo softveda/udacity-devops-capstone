@@ -5,14 +5,15 @@ metadata:
   name: basic-cluster
   region: us-west-2
 
-nodeGroups:
+managedNodeGroups:
   - name: ng-workers-1
-    instanceType: t3.small
+    labels: {role: worker}
+    instanceType: t2.micro
     desiredCapacity: 1
     minSize: 1
     maxSize: 3
     iam:
       withAddonPolicies:
         albingress: true
-    ssh:
-      allow: true # will use ~/.ssh/id_rsa.pub as the default ssh key
+    tags:
+      nodegroup-role: worker
