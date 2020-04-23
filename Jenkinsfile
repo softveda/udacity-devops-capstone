@@ -2,7 +2,8 @@ pipeline {
   agent any
 
   environment {
-    APP_NAME = "simple_node_app"
+    APP_NAME = "simple_node_app",
+    AWS_ACCOUNT = "915323986442"
   }
 
   parameters {
@@ -13,65 +14,67 @@ pipeline {
 
     stage('Linting') {
       steps {
-        sh 'tidy -q -e views/*.html'
-        sh 'eslint *.js'
-        sh 'hadolint Dockerfile'
+        parallel(
+          htmllint: {sh 'tidy -q -e views/*.html'}
+          eslint: {sh 'eslint *.js'}
+          hadlint: {sh 'hadolint Dockerfile'}
+        )
       }
     }
 
     stage('Build Docker Image') {
       steps {
-        sh 'docker build -t simple_node_app .'
-        sh 'docker image ls -q simple_node_app:latest'
+        sh 'docker build -t $APP_NAME .'
+        sh 'docker image ls -q $APP_NAME:latest'
       }
     }
 
     stage('Run and Test App in Docker') {
       steps {
-        sh 'docker run --name simple_node_app -p 80:80 -d simple_node_app'
+        sh 'docker run --name $APP_NAME -p 80:80 -d $APP_NAME'
         sh 'sleep 5'
         sh 'curl -s http://localhost:80'
-        sh 'docker logs simple_node_app'
-        sh 'docker stop simple_node_app'
-        sh 'docker rm simple_node_app'
+        sh 'docker logs $APP_NAME'
+        sh 'docker stop $APP_NAME'
+        sh 'docker rm $APP_NAME'
       }
     }
 
     stage('Push image to DockerHub') {
       steps {
         withDockerRegistry(credentialsId: 'docker-hub-credentials', url: 'https://index.docker.io/v1/') {
-          sh 'docker tag simple_node_app softveda/simple_node_app:$BUILD_NUMBER'
-          sh 'docker tag simple_node_app softveda/simple_node_app:latest'
-          sh 'docker push softveda/simple_node_app:$BUILD_NUMBER'
-          sh 'docker push softveda/simple_node_app:latest'
+          sh 'docker tag $APP_NAME softveda/$APP_NAME:$BUILD_NUMBER'
+          sh 'docker tag $APP_NAME softveda/$APP_NAME:latest'
+          sh 'docker push softveda/$APP_NAME:$BUILD_NUMBER'
+          sh 'docker push softveda/$APP_NAME:latest'
         }
       }
       post {
         always {
-          sh 'docker image rm -f softveda/simple_node_app:$BUILD_NUMBER'
-          sh 'docker image rm -f softveda/simple_node_app:latest'
+          sh 'docker image rm -f softveda/$APP_NAME:$BUILD_NUMBER'
+          sh 'docker image rm -f softveda/$APP_NAME:latest'
         }
       }
     }
 
     stage('Create ECR repository') {
       steps {
-        sh 'aws cloudformation deploy --stack-name simple-node-app-repo --region us-west-2 --template-file cfn-ecr.yml --parameter-overrides RepositoryName=simple_node_app'
+        sh 'aws cloudformation deploy --stack-name simple-node-app-repo --region us-west-2 --template-file cfn-ecr.yml --parameter-overrides RepositoryName=$APP_NAME'
       }
     }
 
     stage('Push image to ECR') {
       steps {
-        sh 'docker tag simple_node_app 915323986442.dkr.ecr.us-west-2.amazonaws.com/simple_node_app:$BUILD_NUMBER'
-        sh 'docker push 915323986442.dkr.ecr.us-west-2.amazonaws.com/simple_node_app:$BUILD_NUMBER'
-        sh 'docker tag simple_node_app 915323986442.dkr.ecr.us-west-2.amazonaws.com/simple_node_app:latest'
-        sh 'docker push 915323986442.dkr.ecr.us-west-2.amazonaws.com/simple_node_app:latest'        
+        sh 'docker tag $APP_NAME $AWS_ACCOUNT.dkr.ecr.us-west-2.amazonaws.com/$APP_NAME:$BUILD_NUMBER'
+        sh 'docker push $AWS_ACCOUNT.dkr.ecr.us-west-2.amazonaws.com/$APP_NAME:$BUILD_NUMBER'
+        sh 'docker tag $APP_NAME $AWS_ACCOUNT.dkr.ecr.us-west-2.amazonaws.com/$APP_NAME:latest'
+        sh 'docker push $AWS_ACCOUNT.dkr.ecr.us-west-2.amazonaws.com/$APP_NAME:latest'        
       }
       post {
         always {
-          sh 'docker image rm -f 915323986442.dkr.ecr.us-west-2.amazonaws.com/simple_node_app:$BUILD_NUMBER'
-          sh 'docker image rm -f 915323986442.dkr.ecr.us-west-2.amazonaws.com/simple_node_app:latest'
-          sh 'docker image rm -f simple_node_app:latest'
+          sh 'docker image rm -f $AWS_ACCOUNT.dkr.ecr.us-west-2.amazonaws.com/$APP_NAME:$BUILD_NUMBER'
+          sh 'docker image rm -f $AWS_ACCOUNT.dkr.ecr.us-west-2.amazonaws.com/$APP_NAME:latest'
+          sh 'docker image rm -f $APP_NAME:latest'
         }
       }
     }
@@ -98,7 +101,7 @@ pipeline {
         echo "Kubernetes service URL: ${K8S_SVC}"
         script {
           SVC_STATUS = sh(
-            script: "curl -s http://$K8S_SVC | grep Version:",
+            script: "curl -s http://$K8S_SVC | grep Version: ${params.DEP_VERSION}",
             returnStatus: true
           )
           script {
@@ -106,7 +109,7 @@ pipeline {
             if(SVC_STATUS) {
               echo "Service is Running"
             } else {
-              echo "Service is NOT Running"
+              error "Service is NOT Running"
             }
           }
         }
