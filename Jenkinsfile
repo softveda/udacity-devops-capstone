@@ -76,7 +76,7 @@ pipeline {
       }
     }
 
-    stage('Provision EKS cluster') {
+    stage('Deploy to EKS') {
       environment {
         EKS_STATUS = sh (script:'eksctl get cluster --name=basic-cluster --region=us-west-2', returnStatus: true)
       }
@@ -84,15 +84,10 @@ pipeline {
         expression {environment name: 'EKS_STATUS', value: '0'}
       }
       steps {
-        echo "Running EKS create cluster ..."
-      }
-    }
+        echo "Deploying to EKS cluster ..."
 
-    stage('Deploy to EKS') {
-      steps {
-        echo "Deployment Version: ${params.DEP_VERSION}"
-
-        sh 'kubectl apply -f app-deployment-aws.yml && kubectl rollout status deployment.apps/simple-web-app --timeout=2m --watch=true'
+        sh 'kubectl apply -f app-deployment-aws.yml'
+        sh 'kubectl rollout status deployment.apps/simple-web-app --timeout=5m --watch=true'
 
         script {
           K8S_SVC = sh (
@@ -100,8 +95,8 @@ pipeline {
             returnStdout: true
           ).trim()
         }        
-        echo "Kubernetes service: ${K8S_SVC}"
-        sh 'curl -s ${K8S_SVC} | grep Version'
+        echo "Kubernetes service URL: ${K8S_SVC}"
+        sh 'curl -s http://$K8S_SVC | grep Version'
       }
      
     }
