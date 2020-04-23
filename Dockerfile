@@ -13,4 +13,6 @@ COPY . .
 
 EXPOSE 80
 
+ENTRYPNT
+
 CMD [ "node", "app.js" ]
