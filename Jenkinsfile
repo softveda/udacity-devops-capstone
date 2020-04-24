@@ -29,6 +29,12 @@ pipeline {
       }
     }
 
+    stage('Scan Docker Image') {
+      steps {
+        aquaMicroscanner imageName: '$APP_NAME:latest', notCompliesCmd: 'exit 4', onDisallowed: 'fail', outputFormat: 'html'
+      }
+    }
+
     stage('Run and Test App in Docker') {
       steps {
         sh 'docker run --name $APP_NAME -p 80:80 -d $APP_NAME'
@@ -99,7 +105,8 @@ pipeline {
           ).trim()
                 
           echo "Kubernetes service URL: ${K8S_SVC}"
-          sh "curl -m 5 -s http://$K8S_SVC"
+          sleep 5
+          sh "curl -m 5 -S http://$K8S_SVC"
         }
       }
     }
