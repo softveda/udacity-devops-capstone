@@ -8,7 +8,7 @@ metadata:
 managedNodeGroups:
   - name: ng-workers-1
     labels: {role: worker}
-    instanceType: t2.micro
+    instanceType: t3.small
     desiredCapacity: 1
     minSize: 1
     maxSize: 3
