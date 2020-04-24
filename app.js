@@ -17,6 +17,10 @@ router.use(function (req,res,next) {
   next();
 });
 
+router.get("/version", function(req,res){
+  res.send("blue");
+});
+
 router.get("/", function(req,res){
   res.sendFile(path + "index.html");
 });
@@ -28,5 +32,5 @@ app.use("/", router);
 app.listen(PORT, function() {
   var startTime = new Date().toUTCString();
   var host = process.env.HOSTNAME;
-  console.log(`Simple node web app Started at: ${startTime}, Running on host: ${host}, Listening on port: ${PORT}`);
+  console.log(`Simple node web app, Started at: ${startTime}, Running at: http://${host}:${PORT}`);
 });
